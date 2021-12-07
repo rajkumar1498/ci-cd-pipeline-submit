@@ -129,6 +129,6 @@ workflows:
       - scan-frontend:
           requires: [build-frontend]
       - notify:
-            context: slack-secrets
+            context: CI-CD Alert Context
       
       

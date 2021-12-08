@@ -92,27 +92,7 @@ jobs:
             cd backend
             npm install
             npm audit fix --audit-level=critical --force
-  notify:
-      docker:
-        - image: cimg/base:stable
-      steps:
-        - slack/notify:
-            event: always
-            custom: |
-              {
-                "blocks": [
-                  {
-                    "type": "section",
-                    "fields": [
-                      {
-                        "type": "plain_text",
-                        "text": "*This is a text notification*",
-                        "emoji": true
-                      }
-                    ]
-                  }
-                ]
-              }
+
   deploy-infrastructure:
     docker:
       - image: amazon/aws-cli
@@ -161,10 +141,6 @@ workflows:
           requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [test-feature-branch]
-      - notify:
-            context: CI-CD Alert Context
+      
       
       

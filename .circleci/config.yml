@@ -175,8 +175,8 @@ jobs:
           working_directory: ./backend
           command: |
             npm install
+            npm audit fix --audit-level=critical
             npm run migrations > migrations_dump.txt
-            npm audit fix
       - run:
           name: Send migration results to memstash
           command: |

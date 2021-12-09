@@ -150,8 +150,6 @@ jobs:
     steps:
       - checkout
       - fingerprints: ["96:19:5d:ad:43:8e:46:13:b3:43:c0:d0:0f:a6:17:ec"]
-      - attach_workspace:
-          at: .
       - run:
           name: Install dependencies
           command: |
@@ -164,6 +162,7 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy_environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
+
 workflows:
   default:
     jobs:

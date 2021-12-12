@@ -27,7 +27,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl -H "token: 2a9e15d6-b9fa-4b1f-a5dc-e3b9643a9b63" --request GET https://api.memstash.io/values/DB_MIGRATION_<< parameters.id >>)
+            SUCCESS=$(curl -H "token: 0275d9aa-b9fb-41f5-967b-b6b740c7b3bd" --request GET https://api.memstash.io/values/migration_<< parameters.id >>)
             echo $SUCCESS
             SUCCESS = 1
             if(( $SUCCESS==1 )); 

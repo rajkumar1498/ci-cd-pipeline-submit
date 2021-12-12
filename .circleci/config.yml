@@ -15,8 +15,8 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
           environment:
-            TERM: xterm-256color  
-
+            TERM: xterm-256color
+            
 jobs:
   build-frontend:
     docker:
@@ -121,6 +121,14 @@ jobs:
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
+          name: Save backend URL in memstash
+          command: |
+            BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text)
+            curl -H "Content-Type: text/plain" -H "token: 1e288415-cfc8-4a0a-a23c-087eb7cd7678" --request PUT --data "http://$BACKEND_IP:3030" https://api.memstash.io/values/BACKEND_URL
+      - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
@@ -150,10 +158,14 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["96:19:5d:ad:43:8e:46:13:b3:43:c0:d0:0f:a6:17:ec"]
+          fingerprints: ["12:c1:03:7c:4f:04:ca:3a:62:3b:85:4b:35:87:d5:7d"]
+      - attach_workspace:
+          at: .
+      - run: yum -y install tar gzip
       - run:
           name: Install dependencies
           command: |
+            cd .circleci/ansible
             apk add --update ansible
             ansible --version
       - run:
@@ -197,6 +209,13 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [main]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
           
 
       

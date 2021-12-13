@@ -25,7 +25,6 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          when: on_fail
           command: |
             SUCCESS=$(curl -H "token: 0275d9aa-b9fb-41f5-967b-b6b740c7b3bd" --request GET https://api.memstash.io/values/migration_<< parameters.id >>)
             echo $SUCCESS
@@ -36,6 +35,9 @@ commands:
               npm install
               npm run migrations:revert
             fi
+          environment:
+            TERM: xterm-256color
+          when: on_fail
             
 jobs:
   build-frontend:
@@ -248,7 +250,6 @@ jobs:
 
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
-
       - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
 

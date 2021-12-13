@@ -85,7 +85,7 @@ jobs:
           name: run front-end tests
           command: |
             cd frontend
-            npm install
+            npm install --save-dev jest-junit
             npm run test              
   test-backend:
     docker:

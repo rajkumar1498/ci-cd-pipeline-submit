@@ -25,6 +25,7 @@ commands:
     steps:
       - run:
           name: Revert migrations
+          working_directory: ./backend
           command: |
             SUCCESS=$(curl -H "token: c7461ba7-1913-487c-a238-459151786362" --request GET https://api.memstash.io/values/migration_<< parameters.id >>)
             echo $SUCCESS
@@ -35,8 +36,6 @@ commands:
               npm install
               npm run migrations:revert
             fi
-          environment:
-            TERM: xterm-256color
           when: on_fail
             
 jobs:
@@ -140,7 +139,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags project=udapeople \
+              --tags project=udapeople-backend \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
@@ -148,7 +147,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=udapeople \
+              --tags project=udapeople-frontend \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
@@ -222,14 +221,19 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run:
-          name: Install aws tar npm dependencies
+          name: Install AWS CLI dependencies
+          working_directory: /tmp
           command: |
-            yum install -y tar gzip
-            sudo apt-get install npm
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Get backend url
           command: |
@@ -312,10 +316,6 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
       
           
 

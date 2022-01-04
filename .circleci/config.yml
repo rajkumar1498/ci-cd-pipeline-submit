@@ -79,7 +79,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend]
+          keys: [frontend-build]
       - run:
           name: run front-end tests
           command: |
@@ -93,7 +93,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend]
+          keys: [backend-build]
       - run:
           name: run-backend tests
           command: |
@@ -106,7 +106,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [scan-frontend]
+          keys: [frontend-build]
       - run:
           name: Scan-frontend dependencies
           command: |
@@ -120,7 +120,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [scan-backend]
+          keys: [backend-build]
       - run:
           name: Scan-backend dependencies
           command: |
@@ -156,7 +156,7 @@ jobs:
             cd .circleci/ansible
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --filters "Name=tag:project,Values=udapeople \
               --output text >> inventory
             cat inventory
       - persist_to_workspace:
@@ -340,12 +340,7 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-      - create-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [main]
-      
+         
           
 
       

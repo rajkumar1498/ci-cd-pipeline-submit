@@ -312,7 +312,6 @@ workflows:
   default:
     jobs:
       - deploy-frontend
-      - deploy-backend
           
       
       

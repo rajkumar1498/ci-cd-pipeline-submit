@@ -229,7 +229,7 @@ jobs:
             npm install
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
-            aws s3 cp migrations_dump.txt s3://udapeople-migrations-dump
+            aws s3 cp migrations_dump.txt s3://udapeople-f8c6790
       - store_artifacts:
           path: ~/project/backend/migrations_dump.txt
           destination: migration-results

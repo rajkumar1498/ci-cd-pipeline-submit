@@ -221,18 +221,14 @@ jobs:
             echo 'aws cli version:'
             aws --version
       - run:
-          name: Run migrations
-          no_output_timeout: 10m
+          name: Run migrations and send migration result to AWS s3
+          no_output_timeout: 30m
           command: |
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
-      - run:
-          name: Send migration results to AWS s3
-          command: |
-            cd backend
-            aws s3 cp migrations_dump.txt s3://udapeople-migrations-dump --recursive
+            aws s3 cp migrations_dump.txt s3://udapeople-migrations-dump
       - store_artifacts:
           path: ~/project/backend/migrations_dump.txt
           destination: migration-results
@@ -457,14 +453,6 @@ workflows:
               only: [main]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
 
           
       

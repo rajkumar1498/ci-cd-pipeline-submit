@@ -1,2 +1,3 @@
 Git Url : https://github.com/rajkumar1498/ci-cd-pipeline-submit
-
+S3 bucket URL : https://s3.console.aws.amazon.com/s3/buckets/udapeople-449e57c?region=us-east-2&tab=objects
+Prometheus URL : http://ec2-3-144-144-243.us-east-2.compute.amazonaws.com:9090/targets

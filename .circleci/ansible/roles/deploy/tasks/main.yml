@@ -45,3 +45,4 @@
   shell: |
     printenv
   register: printenv_out
+

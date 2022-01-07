@@ -84,7 +84,6 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm install --save-dev jest-junit
             npm run test
       - save_cache:
           paths: [frontend/node_modules]
@@ -333,7 +332,7 @@ jobs:
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            ansible-playbook -i inventory.txt deploy-backend.yml -vv
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations

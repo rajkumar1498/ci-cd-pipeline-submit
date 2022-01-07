@@ -84,7 +84,6 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm install --save-dev jest-junit
             npm run test
       - save_cache:
           paths: [frontend/node_modules]
@@ -229,7 +228,7 @@ jobs:
             npm install
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
-            aws s3 cp migrations_dump.txt s3://udapeople-f8c6790
+            aws s3 cp migrations_dump.txt s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
       - store_artifacts:
           path: ~/project/backend/migrations_dump.txt
           destination: migration-results
@@ -243,6 +242,9 @@ jobs:
             then
               echo "No migrations are pending."
             fi
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
 
   deploy-frontend:
     docker:
@@ -279,6 +281,9 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
@@ -324,6 +329,9 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml -vv
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
   
   smoke-test:
     docker:
@@ -428,7 +436,25 @@ jobs:
 workflows:
   default:
     jobs:
-      - run-migrations
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [main]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
       - deploy-backend:

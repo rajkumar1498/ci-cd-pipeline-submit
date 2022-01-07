@@ -5,11 +5,6 @@
     path: ~/backend
     state: directory
 
-- name: check if backend is created
-  become: yes
-  shell: |
-    cd ~
-    ls -l
 - name: copy files to backend
   become: yes
   template: 

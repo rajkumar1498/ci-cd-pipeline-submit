@@ -1,29 +1,22 @@
----
-- name: create backend directory on EC2
-  become: yes
+- name: Create folder for extracted files
   file:
-    path: ~/backend
+    path: /home/ubuntu/backend
     state: directory
 
-- name: copy files to backend
-  become: yes
-  template: 
+- name: Extract 'artifact.tar.gz' into '/home/ubuntu/backend'
+  ansible.builtin.unarchive:
     src: ~/project/artifact.tar.gz
-    dest: ~/backend/artifact.tar.gz
+    dest: /home/ubuntu/backend
 
-- name: unzip backend directory
-  become: yes
+- name: 'wait 60 seconds for target connection to become reachable/usable.'
+  wait_for_connection:
+    timeout: 60
+
+- name: Run server
+  become: true
   shell: |
-    cd ~/backend
-    tar -vxf artifact.tar.gz
-    rm -f artifact.tar.gz
-- name: start application
-  become: yes
-  shell: |
-    cd ~/backend
+    cd /home/ubuntu/backend
     npm install
+    npm run build   
     pm2 stop default
-    pm2 start npm -- start
-    # cd src
-    # pm2 start main.js --update-env
-    # end of commands
+    pm2 start npm --name "backend" -- start

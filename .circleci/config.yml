@@ -85,7 +85,6 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm install --save-dev jest-junit
             npm run test
       - save_cache:
           paths: [frontend/node_modules]

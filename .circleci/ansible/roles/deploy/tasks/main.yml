@@ -2,6 +2,7 @@
   file:
     path: /home/ubuntu/backend
     state: directory
+    mode: 0755
 
 - name: Extract 'artifact.tar.gz' into '/home/ubuntu/backend'
   ansible.builtin.unarchive:

@@ -1,23 +1,30 @@
-- name: Create folder for extracted files
-  file:
-    path: /home/ubuntu/backend
-    state: directory
-    mode: 0755
-
-- name: Extract 'artifact.tar.gz' into '/home/ubuntu/backend'
-  ansible.builtin.unarchive:
-    src: ~/project/artifact.tar.gz
-    dest: /home/ubuntu/backend
-
-- name: 'wait 60 seconds for target connection to become reachable/usable.'
-  wait_for_connection:
-    timeout: 60
-
-- name: Run server
+--- 
+- name: "unarchive backend files"
+  unarchive: 
+    dest: /home/ubuntu/
+    src: backend.tar.gz
+    
+- name: "upgrade packages."
   become: true
+  apt:
+    upgrade: "yes"
+    
+#- name: "install dependencies."
+ # become: true
+  #apt:
+   # name: ["nodejs", "npm"]
+    #update_cache: yes
+    
+#- name: "install pm2"
+ # become: true
+  #npm:
+   # name: pm2
+    #global: yes
+    #production: yes
+    #state: present
+
+- name: Start PM2
   shell: |
-    cd /home/ubuntu/backend
-    npm install
-    npm run build   
-    pm2 stop default
-    pm2 start npm --name "backend" -- start
+    cd ~/backend
+    pm2 start npm --name backend -- start
+    #pm2 start npm -i 1 --name backend -- start

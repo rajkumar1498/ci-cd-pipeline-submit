@@ -1,0 +1,55 @@
+---
+# - name: "Remove any node npm that might already be installed."
+#   debugger: on_failed
+#   become: yes
+#   apt:
+#     name: ["nodejs", "npm"]
+#     state: absent
+#     purge: yes
+
+- name: "update apt packages."
+  become: true
+  apt:
+    update_cache: yes
+
+- name: "upgrade packages"
+  become: true
+  apt:
+    upgrade: yes
+
+- name: remove dependencies that are no longer required
+  become: true
+  apt:
+    autoremove: yes
+
+- name: "Add nodejs 13.x ppa for apt repo, and install nodejs"
+  become: true
+  shell: |
+    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+# reference - How to install node13 as required by this project: https://kyle.pericak.com/nodejs-ansible.html
+# - name: "Add nodejs 13.x ppa for apt repo"
+#   become: yes
+#   apt_repository:
+#     repo: deb https://deb.nodesource.com/node_13.x focal main
+#     update_cache: yes
+
+
+# - name: "install dependencies."
+#   become: yes
+#   apt:
+##     name: ["nodejs", "npm"]
+#     name:
+#       - nodejs=13.14.0-deb-1nodesource1
+#       - npm
+#     state: present
+#     update_cache: yes
+#     install_recommends: yes
+
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present

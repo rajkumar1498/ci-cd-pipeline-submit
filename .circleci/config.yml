@@ -161,18 +161,19 @@ jobs:
             #npm audit --audit-level=critical
       #- save_cache:
       #    paths: [backend/node_modules]
-      #    key: scan-backend 
+      #    key: scan-backend
   deploy-infrastructure:
     docker:
-      # Docker image here that supports AWS CLI
       - image: amazon/aws-cli
     steps:
-      # Checkout code from git
       - checkout
       - run:
-          name: Install tar
+          name: Install tar and gzip
           command: |
-            yum install -y tar gzip   
+            cat .circleci/ansible/inventory.txt
+            ls ~/project/.circleci/ansible/
+            cat ~/project/.circleci/ansible/inventory.txt
+            yum -y install tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -194,23 +195,18 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            # Your code here
+            cd .circleci/ansible
             backendip=$(aws ec2 describe-instances \
               --query "Reservations[*].Instances[*].PublicIpAddress" \
               --filters "Name=tag:project,Values=Udacity-Project3" \
               --output=text)
             echo $backendip >> .circleci/ansible/inventory.txt
-            #curl -H "Content-Type: text/plain" -H "token: 611cb3de-3438-48e5-b25c-e2364f2913e1" \
-             # --request PUT --data $backendip https://api.memstash.io/values/udapeoplebackendip
-            #cat .circleci/ansible/inventory.txt
-            # exit 1
+            cat inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure  
-
-
+            - project/.circleci/ansible/inventory.txt     
+  
   configure-infrastructure:
     docker:
       # Docker image here that supports Ansible
